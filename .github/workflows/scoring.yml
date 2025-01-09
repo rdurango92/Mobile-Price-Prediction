@@ -1,0 +1,50 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: create scores
+
+on:
+  push:
+    paths:
+      - "data/scoring_data.csv"
+
+jobs:
+  
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo content
+      # Este paso utiliza la acción `checkout` para clonar el repositorio y acceder a los archivos. 
+      # Es esencial para trabajar con el archivo actualizado.
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.9
+      # Configura Python 3.9 en el entorno de ejecución. 
+      # Esto es útil si necesitas ejecutar scripts de Python o instalar dependencias específicas.
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+
+    - name: Install dependencies
+      # Este paso actualiza `pip` a la última versión y luego instala todas las dependencias listadas en `requirements.txt`.
+      # Asegúrate de que el archivo `requirements.txt` esté ubicado en la raíz del repositorio o ajusta la ruta si está en otro lugar.
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: execute py script
+      # Este paso ejecuta el script de python que actualiza los logs
+      run: python score.py
+
+    - name: commit files
+      # El nuevo archivo de logs es agregado al repositorio
+      run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add -A
+          git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
+
+    - name: push changes
+      # El nuevo archivo de logs es actualizado finalmente
+      run: git push origin ${{ github.ref }}
+    
