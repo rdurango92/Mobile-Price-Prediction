@@ -12,6 +12,7 @@ def main():
 
     # Load data to be scored
     X_val = pd.read_csv('data/scoring_data.csv')
+    X_val = X_val.drop(['Unnamed: 0'], axis=1)
 
     # Preprocess data
     preprocessing_pipeline = joblib.load('models/preprocessing_pipeline.joblib')
